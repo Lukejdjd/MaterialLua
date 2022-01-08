@@ -700,6 +700,8 @@ function CreateNewButton(ButtonConfig, Parent)
 	return Button, ButtonLabel
 end
 
+local TargetParent = RunService:IsStudio() and Player.PlayerGui or CoreGuiService
+
 function Material.Load(Config)
 	local Style = (Config.Style and math.clamp(Config.Style, 1, 3)) or 1
 	local Title = Config.Title or "MaterialLua"
@@ -717,36 +719,15 @@ function Material.Load(Config)
 		ThisTheme[KeyOverride] = ValueOverride
 	end
 
-	pcall(function() OldInstance:Destroy() end);
+	local OldInstance = TargetParent:FindFirstChild(Title)
 
-    local function GetExploit()
-        local Table = {};
-        Table.Synapse = syn;
-        Table.ProtoSmasher = pebc_create;
-        Table.Sentinel = issentinelclosure;
-        Table.ScriptWare = getexecutorname;
-    
-        for ExploitName, ExploitFunction in next, Table do
-            if (ExploitFunction) then
-                return ExploitName;
-            end;
-        end;
-        
-        return "Undefined";
-    end;
-
-    local ProtectFunctions = {};
-    ProtectFunctions.Synapse = function(GuiObject) syn.protect_gui(GuiObject); GuiObject.Parent = CoreGuiService; end;
-    ProtectFunctions.ProtoSmasher = function(GuiObject) GuiObject.Parent = get_hidden_gui(); end;
-    ProtectFunctions.Sentinel = function(GuiObject) GuiObject.Parent = CoreGuiService; end;
-    ProtectFunctions.ScriptWare = function(GuiObject) GuiObject.Parent = gethui(); end;
-    ProtectFunctions.Undefined = function(GuiObject) GuiObject.Parent = CoreGuiService; end;
+	if OldInstance then
+		OldInstance:Destroy()
+	end
 
 	local NewInstance = Objects.new("ScreenGui")
 	NewInstance.Name = Title
-    ProtectFunctions[GetExploit()](NewInstance);
-
-    getgenv().OldInstance = NewInstance;
+	NewInstance.Parent = TargetParent
 
 	MainGUI = NewInstance
 
@@ -1845,7 +1826,7 @@ function Material.Load(Config)
 			Saturation.Parent = ColorPicker
 
 			local Value = Saturation:Clone()
-			Value.Position = Value.Position + UDim2.fromOffset(0,25)
+			Value.Position = Value.Position UDim2.fromOffset(0,25)
 			Value.Parent = ColorPicker
 
 			local HueLabel = Objects.new("Label")
